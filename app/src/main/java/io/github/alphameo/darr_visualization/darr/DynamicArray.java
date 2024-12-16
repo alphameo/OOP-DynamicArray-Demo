@@ -1,5 +1,6 @@
 package io.github.alphameo.darr_visualization.darr;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Objects;
 
@@ -7,83 +8,80 @@ public class DynamicArray<E> implements List<E> {
 
     public static final int DEFAULT_CAPACITY = 4;
 
-    private Object[] array;
-    int size;
+    private Object[] entries;
+    private int size;
 
-    public DynamicArray(int capacity) {
-        this.array = new Object[capacity];
+    public DynamicArray(final int capacity) {
+        this.entries = new Object[capacity];
     }
 
     public DynamicArray() {
         this(DEFAULT_CAPACITY);
     }
 
-    public DynamicArray(E... elements) {
+    public DynamicArray(final E... elements) {
         this(calcCapacity(elements.length));
-        for (E e : elements) {
+        for (final E e : elements) {
             this.addLast(e);
         }
     }
 
     @Override
-    public void add(int index, E element) {
+    public void add(final int index, final E element) {
         validateAddIndex(index);
 
         if (size() == capacity()) {
             resizeCapacity(calcCapacity(size() + 1));
         }
 
-        shiftElementsFwd(index, index + 1);
+        shiftElementsFwd(index, 1);
 
-        array[index] = element;
+        entries[index] = element;
         size++;
     }
 
     @Override
-    public boolean addAll(int index, List<E> c) {
+    public boolean addAll(final int index, final List<E> c) {
         validateAddIndex(index);
 
-        int targetSize = size() + c.size();
+        size += c.size();
 
-        if (targetSize > capacity()) {
-            resizeCapacity(calcCapacity(targetSize));
+        if (size() >= capacity()) {
+            resizeCapacity(calcCapacity(size()));
         }
 
-        shiftElementsFwd(index, index + c.size());
+        shiftElementsFwd(index, c.size());
 
-        for (int i = index; i < index + c.size(); i++) {
-            array[i] = c.get(i);
+        for (int i = 0; i < c.size(); i++) {
+            entries[index + i] = c.get(i);
         }
-
-        size = targetSize;
 
         return true;
     }
 
     @Override
-    public void addFirst(E e) {
-        shiftElementsFwd(0, 1);
+    public void addFirst(final E e) {
         add(0, e);
     }
 
     @Override
-    public void addLast(E e) {
+    public void addLast(final E e) {
         this.add(this.size(), e);
     }
 
     @Override
     public void clear() {
-        this.array = new Object[DEFAULT_CAPACITY];
+        this.entries = new Object[DEFAULT_CAPACITY];
         size = 0;
     }
 
     @Override
-    public boolean contains(Object o) {
+    public boolean contains(final Object o) {
         return this.indexOf(o) >= 0;
     }
 
     @Override
-    public boolean containsAll(List<E> c) {
+    public boolean containsAll(final List<E> c) {
         for (int i = 0; i < c.size(); i++) {
             if (!this.contains(c.get(i))) {
                 return false;
@@ -94,7 +92,8 @@ public class DynamicArray<E> implements List<E> {
     }
 
     @Override
-    public boolean equals(Object obj) {
+    @SuppressWarnings("unchecked")
+    public boolean equals(final Object obj) {
         if (this == obj) {
             return true;
         }
@@ -104,15 +103,25 @@ public class DynamicArray<E> implements List<E> {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        DynamicArray<E> other = (DynamicArray<E>) obj;
+        final DynamicArray<E> other = (DynamicArray<E>) obj;
 
-        return Arrays.deepEquals(array, other.array) && size == other.size;
+        if (this.size() != other.size()) {
+            return false;
+        }
+
+        for (int i = 0; i < size(); i++) {
+            if (!entries[i].equals(other.get(i))) {
+                return false;
+            }
+        }
+        return true;
     }
 
     @Override
-    public E get(int index) {
+    @SuppressWarnings("unchecked")
+    public E get(final int index) {
         validateDataIndex(index);
-        return (E) this.array[index];
+        return (E) this.entries[index];
     }
 
     @Override
@@ -129,16 +138,16 @@ public class DynamicArray<E> implements List<E> {
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result + Arrays.deepHashCode(array);
+        result = prime * result + Arrays.deepHashCode(entries);
         result = prime * result + Objects.hash(size);
 
         return result;
     }
 
     @Override
-    public int indexOf(Object o) {
+    public int indexOf(final Object o) {
         for (int i = 0; i < size(); i++) {
-            if (array[i].equals(o)) {
+            if (entries[i].equals(o)) {
                 return i;
             }
         }
@@ -151,9 +160,9 @@ public class DynamicArray<E> implements List<E> {
     }
 
     @Override
-    public int lastIndexOf(Object o) {
+    public int lastIndexOf(final Object o) {
         for (int i = size() - 1; i >= 0; i--) {
-            if (array[i].equals(o)) {
+            if (entries[i].equals(o)) {
                 return i;
             }
         }
@@ -161,9 +170,9 @@ public class DynamicArray<E> implements List<E> {
     }
 
     @Override
-    public boolean remove(Object o) {
+    public boolean remove(final Object o) {
         for (int i = 0; i < size(); i++) {
-            if (array[i].equals(o)) {
+            if (entries[i].equals(o)) {
                 this.remove(i);
                 return true;
             }
@@ -173,15 +182,10 @@ public class DynamicArray<E> implements List<E> {
     }
 
     @Override
-    public E remove(int index) {
-        if (size() * 2 < capacity()) {
-            resizeCapacity(calcCapacity(size()));
-        }
-
-        validateDataIndex(index);
-
-        Object tmp = array[index];
-        shiftElementsBack(index + 1, index);
+    @SuppressWarnings("unchecked")
+    public E remove(final int index) {
+        final Object tmp = this.get(index);
+        shiftElementsBack(index + 1, 1);
 
         size--;
         return (E) tmp;
@@ -199,7 +203,7 @@ public class DynamicArray<E> implements List<E> {
 
     @Override
     public List<E> reversed() {
-        List<E> reversed = new DynamicArray<>(this.size());
+        final List<E> reversed = new DynamicArray<>(this.size());
         for (int i = this.size() - 1; i >= 0; i--) {
             reversed.addLast(this.get(i));
         }
@@ -208,10 +212,9 @@ public class DynamicArray<E> implements List<E> {
     }
 
     @Override
-    public void set(int index, E element) {
+    public void set(final int index, final E element) {
         validateDataIndex(index);
-        shiftElementsFwd(index, index + 1);
-        array[index] = element;
+        entries[index] = element;
     }
 
     @Override
@@ -220,76 +223,90 @@ public class DynamicArray<E> implements List<E> {
     }
 
     public int capacity() {
-        return array.length;
+        return entries.length;
     }
 
     @Override
     public Object[] toArray() {
-        return Arrays.copyOf(array, size());
+        return Arrays.copyOf(entries, size());
     }
 
-    private static int calcCapacity(int minCapacity) {
-        int pow = (int) Math.ceil(Math.log(minCapacity) / Math.log(2));
+    private static int calcCapacity(final int minCapacity) {
+        final int pow = (int) Math.ceil(Math.log(minCapacity) / Math.log(2));
         int newCpacity = 1;
-        for (int i = 0; i <= pow; i++) {
+        for (int i = 0; i < pow; i++) {
             newCpacity *= 2;
+        }
+
+        if (newCpacity < DEFAULT_CAPACITY) {
+            newCpacity = DEFAULT_CAPACITY;
         }
 
         return newCpacity;
     }
 
-    private boolean resizeCapacity(int newCpacity) {
-        boolean appliedCapacity = true;
-
-        if (newCpacity < DEFAULT_CAPACITY) {
-            appliedCapacity = false;
-        }
-
-        Object[] newArray = new Object[newCpacity];
+    private void resizeCapacity(final int newCpacity) {
+        final Object[] newArray = new Object[newCpacity];
 
         for (int i = 0; i < Math.min(capacity(), newArray.length); i++) {
-            newArray[i] = array[i];
+            newArray[i] = entries[i];
         }
 
-        array = newArray;
-
-        return appliedCapacity;
+        entries = newArray;
     }
 
-    private static void validateIndex(int index, int maxIndex) {
+    private static void validateIndex(final int index, final int maxIndex) {
         if (index < 0 || index > maxIndex) {
-            throw new IllegalArgumentException("Index out of bounds");
+            throw new IllegalArgumentException("Index " + index + " out of bounds for max index " + maxIndex);
         }
     }
 
-    private void validateAddIndex(int index) {
+    private void validateAddIndex(final int index) {
         validateIndex(index, size());
     }
 
-    private void validateDataIndex(int index) {
+    private void validateDataIndex(final int index) {
         validateIndex(index, size() - 1);
     }
 
-    private void shiftElementsFwd(int indexFrom, int indexTo) {
-        int indexOffset = indexTo - indexFrom;
-        resizeCapacity(size() + indexOffset);
+    private void shiftElementsFwd(final int indexFrom, final int indexOffset) {
+        if (size() + indexOffset > capacity()) {
+            resizeCapacity(calcCapacity(size() + indexOffset));
+        }
 
-        for (int i = size + indexOffset; i > indexTo; i--) {
-            array[i] = array[i - indexOffset];
+        for (int i = size() - 1; i >= indexFrom; i--) {
+            entries[i + indexOffset] = entries[i];
         }
     }
 
-    private void shiftElementsBack(int indexFrom, int indexTo) {
-        int indexOffset = indexFrom - indexTo;
-        resizeCapacity(size() + indexOffset);
+    private void shiftElementsBack(final int indexFrom, final int indexOffset) {
+        if (size() * 2 < capacity()) {
+            resizeCapacity(calcCapacity(size()));
+        }
 
         for (int i = indexFrom; i < size(); i++) {
-            array[i] = array[i + indexOffset];
+            entries[i - indexOffset] = entries[i];
         }
     }
 
     @Override
     public String toString() {
-        return Arrays.toString(array);
+        final StringBuilder sb = new StringBuilder();
+        sb.append("[");
+        for (int i = 0; i < size(); i++) {
+            if (this.get(i) == null) {
+                sb.append("null, ");
+                continue;
+            }
+            sb.append(this.get(i).toString());
+            sb.append(", ");
+        }
+
+        if (sb.charAt(sb.length() - 1) == ' ') {
+            sb.delete(sb.length() - 2, sb.length());
+        }
+        sb.append("]");
+
+        return sb.toString();
     }
 }
