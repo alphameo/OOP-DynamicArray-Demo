@@ -23,17 +23,9 @@ javafx {
     modules("javafx.graphics", "javafx.fxml", "javafx.controls")
 }
 
-// testing {
-//     suites {
-//         val test by getting(JvmTestSuite::class) {
-//             useJUnitJupiter("5.9.1")
-//         }
-//     }
-// }
-
 application {
-    mainModule = "io.github.alphameo.darr_visualization.visualization"
-    mainClass = "io.github.alphameo.darr_visualization.visualization.DemoApplication"
+    mainModule = "io.github.alphameo.darray.visualization"
+    mainClass = "io.github.alphameo.darray.visualization.DemoApplication"
 }
 
 tasks.test {

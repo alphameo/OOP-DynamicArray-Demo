@@ -1,4 +1,4 @@
-package io.github.alphameo.darr_visualization.visualization;
+package io.github.alphameo.darray.visualization;
 
 import java.io.IOException;
 

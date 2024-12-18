@@ -1,4 +1,4 @@
-package io.github.alphameo.darr_visualization.darr;
+package io.github.alphameo.darray;
 
 public interface List<E> {
 

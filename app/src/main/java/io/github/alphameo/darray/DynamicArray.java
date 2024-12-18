@@ -1,6 +1,5 @@
-package io.github.alphameo.darr_visualization.darr;
+package io.github.alphameo.darray;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Objects;
 

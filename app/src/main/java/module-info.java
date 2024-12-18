@@ -1,8 +1,8 @@
-module io.github.alphameo.darr_visualization.visualization {
+module io.github.alphameo.darray.visualization {
     requires javafx.controls;
     requires javafx.fxml;
 
-    opens io.github.alphameo.darr_visualization.visualization to javafx.fxml;
+    opens io.github.alphameo.darray.visualization to javafx.fxml;
 
-    exports io.github.alphameo.darr_visualization.visualization;
+    exports io.github.alphameo.darray.visualization;
 }
