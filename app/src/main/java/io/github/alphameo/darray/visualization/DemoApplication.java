@@ -15,7 +15,7 @@ public class DemoApplication extends Application {
         FXMLLoader fxmlLoader = new FXMLLoader(DemoApplication.class.getResource("mainwindow.fxml"));
         Scene scene = new Scene(fxmlLoader.load());
 
-        stage.setTitle("DeezMos");
+        stage.setTitle("Dynamic Array Visualization");
         stage.setScene(scene);
         stage.show();
     }
