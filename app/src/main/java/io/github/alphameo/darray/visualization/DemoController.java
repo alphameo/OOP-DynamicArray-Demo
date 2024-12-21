@@ -18,7 +18,6 @@ import javafx.scene.control.Spinner;
 import javafx.scene.control.SpinnerValueFactory;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.VBox;
 
 public class DemoController {
 
@@ -52,10 +51,6 @@ public class DemoController {
     private TextField textFieldInputValue;
     @FXML
     private TextField textFieldOutputValue;
-
-    // private TableView<String> tableInput;
-
-    // private TableView<String> tableOutput;
 
     private GridPane tableMain;
     private GridPane tableAdditional;
@@ -96,6 +91,7 @@ public class DemoController {
         buttonApply.setOnAction(event -> {
             buttonApply.setText("2424");
         });
+
         comboBoxMethod.getItems().clear();
         comboBoxMethod.getItems().addAll(LABEL_METHOD.keySet());
 
@@ -103,7 +99,6 @@ public class DemoController {
 
         tableMain = new GridPane();
         tableAdditional = new GridPane();
-        // tableInput.setAlignment();
 
         for (int i = 0; i < width; i++) {
             addItem(tableMain, "");
