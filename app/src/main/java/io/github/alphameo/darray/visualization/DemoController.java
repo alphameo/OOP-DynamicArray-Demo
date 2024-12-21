@@ -8,10 +8,17 @@ import java.util.TreeMap;
 
 import io.github.alphameo.darray.DynamicArray;
 import javafx.fxml.FXML;
+import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Spinner;
+import javafx.scene.control.SpinnerValueFactory;
 import javafx.scene.control.TextField;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.VBox;
 
 public class DemoController {
 
@@ -27,6 +34,16 @@ public class DemoController {
     private Button buttonApply;
 
     @FXML
+    private Button buttonAddItemMain;
+    @FXML
+    private Button buttonRemoveItemMain;
+
+    @FXML
+    private Button buttonAddItemAdditional;
+    @FXML
+    private Button buttonRemoveItemAdditional;
+
+    @FXML
     private ComboBox<String> comboBoxMethod;
     @FXML
     private Spinner<Integer> spinnerIndex;
@@ -35,6 +52,19 @@ public class DemoController {
     private TextField textFieldInputValue;
     @FXML
     private TextField textFieldOutputValue;
+
+    // private TableView<String> tableInput;
+
+    // private TableView<String> tableOutput;
+
+    private GridPane tableMain;
+    private GridPane tableAdditional;
+
+    @FXML
+    private ScrollPane paneMain;
+
+    @FXML
+    private ScrollPane paneAdditional;
 
     private final TreeMap<String, Method> LABEL_METHOD = new TreeMap<>(Map.ofEntries(
             Map.entry("add", () -> demonstrateAdd()),
@@ -62,12 +92,75 @@ public class DemoController {
 
     @FXML
     void initialize() {
-        spinnerIndex.getValueFactory();
+        spinnerIndex.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 12));
         buttonApply.setOnAction(event -> {
             buttonApply.setText("2424");
         });
         comboBoxMethod.getItems().clear();
         comboBoxMethod.getItems().addAll(LABEL_METHOD.keySet());
+
+        int width = 10;
+
+        tableMain = new GridPane();
+        tableAdditional = new GridPane();
+        // tableInput.setAlignment();
+
+        for (int i = 0; i < width; i++) {
+            addItem(tableMain, "");
+            addItem(tableAdditional, "");
+        }
+
+        paneMain.setContent(tableMain);
+        paneAdditional.setContent(tableAdditional);
+
+        buttonAddItemMain.setOnAction(event -> {
+            addItem(tableMain, "");
+        });
+        buttonRemoveItemMain.setOnAction(event -> {
+            deleteLastItem(tableMain);
+        });
+
+        buttonAddItemAdditional.setOnAction(event -> {
+            addItem(tableAdditional, "");
+        });
+        buttonRemoveItemAdditional.setOnAction(event -> {
+            deleteLastItem(tableAdditional);
+        });
+    }
+
+    private TextField createValuableCell(String value) {
+        TextField tf = new TextField();
+
+        tf.setPrefHeight(25);
+        tf.setPrefWidth(50);
+        tf.setAlignment(Pos.CENTER);
+        tf.setEditable(true);
+        tf.setText(value);
+
+        return tf;
+    }
+
+    private Label createIndexCell(int index) {
+        Label l = new Label(Integer.toString(index));
+        l.setAlignment(Pos.CENTER);
+        return l;
+    }
+
+    private void addCell(GridPane gridPane, Node node, int r, int c) {
+        GridPane.setRowIndex(node, r);
+        GridPane.setColumnIndex(node, c);
+        gridPane.getChildren().add(node);
+    }
+
+    private void addItem(GridPane gridPane, String value) {
+        int index = gridPane.getColumnCount();
+        addCell(gridPane, createIndexCell(index), 0, index);
+        addCell(gridPane, createValuableCell(value), 1, index);
+    }
+
+    private void deleteLastItem(GridPane gridPane) {
+        int index = gridPane.getColumnCount() - 1;
+        gridPane.getChildren().removeIf(node -> GridPane.getColumnIndex(node) == index);
     }
 
     private void demonstrateAdd() {
