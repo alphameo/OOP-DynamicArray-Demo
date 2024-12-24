@@ -98,8 +98,6 @@ public class DemoController {
         tableMain = new GridPane();
         tableAdditional = new GridPane();
 
-        //resizeSpinner();
-
         paneMain.setContent(tableMain);
         paneAdditional.setContent(tableAdditional);
 
@@ -151,9 +149,6 @@ public class DemoController {
     }
 
     private void deleteLastItem(GridPane gridPane) {
-        int index = gridPane.getColumnCount() - 1;
-        // gridPane.getChildren().removeIf(node -> GridPane.getColumnIndex(node) ==
-        // index);
         gridPane.getChildren().remove(gridPane.getChildren().getLast());
         gridPane.getChildren().remove(gridPane.getChildren().getLast());
     }
