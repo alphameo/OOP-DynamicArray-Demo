@@ -7,6 +7,7 @@ import java.util.ResourceBundle;
 import java.util.TreeMap;
 
 import io.github.alphameo.darray.DynamicArray;
+import io.github.alphameo.darray.List;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
@@ -21,7 +22,7 @@ import javafx.scene.layout.GridPane;
 
 public class DemoController {
 
-    private final DynamicArray<String> curArray = new DynamicArray<>();
+    private DynamicArray<String> curArray = new DynamicArray<>();
 
     @FXML
     private ResourceBundle resources;
@@ -62,57 +63,53 @@ public class DemoController {
     private ScrollPane paneAdditional;
 
     private final TreeMap<String, Method> LABEL_METHOD = new TreeMap<>(Map.ofEntries(
-            Map.entry("add", () -> demonstrateAdd()),
-            Map.entry("addAll", () -> demonstrateAddAll()),
-            Map.entry("addFirst", () -> demonstrateAddFirst()),
-            Map.entry("addLast", () -> demonstrateAddLast()),
-            Map.entry("clear", () -> demonstrateClear()),
-            Map.entry("contains", () -> demonstrateContains()),
-            Map.entry("containsAll", () -> demonstrateContainsAll()),
-            Map.entry("equals", () -> demonstrateEquals()),
-            Map.entry("get", () -> demonstrateGet()),
-            Map.entry("getFirst", () -> demonstrateGetFirst()),
-            Map.entry("getLast", () -> demonstrateGetLast()),
-            Map.entry("indexOf", () -> demonstrateIndexOf()),
-            Map.entry("isEmpty", () -> demonstrateIsEmpty()),
-            Map.entry("lastIndexOf", () -> demonstrateLastIndexOf()),
+            Map.entry("add(index, val)", () -> demonstrateAdd()),
+            Map.entry("addAll(arr)", () -> demonstrateAddAll()),
+            Map.entry("addFirst(val)", () -> demonstrateAddFirst()),
+            Map.entry("addLast(val)", () -> demonstrateAddLast()),
+            Map.entry("clear()", () -> demonstrateClear()),
+            Map.entry("contains(val)", () -> demonstrateContains()),
+            Map.entry("containsAll(arr)", () -> demonstrateContainsAll()),
+            Map.entry("equals(arr)", () -> demonstrateEquals()),
+            Map.entry("get(index)", () -> demonstrateGet()),
+            Map.entry("getFirst()", () -> demonstrateGetFirst()),
+            Map.entry("getLast()", () -> demonstrateGetLast()),
+            Map.entry("indexOf(val)", () -> demonstrateIndexOf()),
+            Map.entry("isEmpty()", () -> demonstrateIsEmpty()),
+            Map.entry("lastIndexOf(val)", () -> demonstrateLastIndexOf()),
             Map.entry("remove(index)", () -> demonstrateRemoveByIndex()),
-            Map.entry("remove(value)", () -> demonstrateRemoveByValue()),
-            Map.entry("removeFirst", () -> demonstrateRemoveFirst()),
-            Map.entry("removeLast", () -> demonstrateRemoveLast()),
-            Map.entry("reversed", () -> demonstrateReversed()),
-            Map.entry("set", () -> demonstrateSet()),
-            Map.entry("size", () -> demonstrateSize()),
-            Map.entry("toArray", () -> demonstrateToArray())));
+            Map.entry("remove(val)", () -> demonstrateRemoveByValue()),
+            Map.entry("removeFirst()", () -> demonstrateRemoveFirst()),
+            Map.entry("removeLast()", () -> demonstrateRemoveLast()),
+            Map.entry("reversed()", () -> demonstrateReversed()),
+            Map.entry("set(index, val)", () -> demonstrateSet()),
+            Map.entry("size()", () -> demonstrateSize()),
+            Map.entry("toArray()", () -> demonstrateToArray())));
 
     @FXML
     void initialize() {
-        spinnerIndex.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 12));
         buttonApply.setOnAction(event -> {
-            buttonApply.setText("2424");
+            LABEL_METHOD.get(comboBoxMethod.getValue()).apply();
         });
 
         comboBoxMethod.getItems().clear();
         comboBoxMethod.getItems().addAll(LABEL_METHOD.keySet());
 
-        int width = 10;
-
         tableMain = new GridPane();
         tableAdditional = new GridPane();
 
-        for (int i = 0; i < width; i++) {
-            addItem(tableMain, "");
-            addItem(tableAdditional, "");
-        }
+        //resizeSpinner();
 
         paneMain.setContent(tableMain);
         paneAdditional.setContent(tableAdditional);
 
         buttonAddItemMain.setOnAction(event -> {
             addItem(tableMain, "");
+            resizeSpinner();
         });
         buttonRemoveItemMain.setOnAction(event -> {
             deleteLastItem(tableMain);
+            resizeSpinner();
         });
 
         buttonAddItemAdditional.setOnAction(event -> {
@@ -155,95 +152,177 @@ public class DemoController {
 
     private void deleteLastItem(GridPane gridPane) {
         int index = gridPane.getColumnCount() - 1;
-        gridPane.getChildren().removeIf(node -> GridPane.getColumnIndex(node) == index);
+        // gridPane.getChildren().removeIf(node -> GridPane.getColumnIndex(node) ==
+        // index);
+        gridPane.getChildren().remove(gridPane.getChildren().getLast());
+        gridPane.getChildren().remove(gridPane.getChildren().getLast());
+    }
+
+    private TextField getItem(int index, GridPane gridPane) {
+        return (TextField) gridPane.getChildren().get(index * 2 + 1);
+    }
+
+    private void writeList(GridPane gridPane, List<String> data) {
+        gridPane.getChildren().clear();
+        for (int i = 0; i < data.size(); i++) {
+            addItem(gridPane, data.get((i)));
+        }
+    }
+
+    private DynamicArray<String> readList(GridPane gridPane) {
+        DynamicArray<String> list = new DynamicArray<>();
+        for (int i = 0; i < gridPane.getColumnCount(); i++) {
+            list.addLast(getItem(i, gridPane).getText());
+        }
+
+        return list;
+    }
+
+    private void resizeSpinner() {
+        spinnerIndex
+                .setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(0, tableMain.getColumnCount() - 1));
     }
 
     private void demonstrateAdd() {
+        curArray = readList(tableMain);
         curArray.add((int) spinnerIndex.getValue(), textFieldInputValue.getText());
+        writeList(tableMain, curArray);
+        resizeSpinner();
     }
 
     private void demonstrateAddAll() {
-        curArray.addAll((int) spinnerIndex.getValue(),
-                ListParser.parse(textFieldInputValue.getText()));
+        DynamicArray<String> arr = readList(tableAdditional);
+        curArray.addAll((int) spinnerIndex.getValue(), arr);
+        writeList(tableMain, curArray);
+        resizeSpinner();
     }
 
     private void demonstrateAddFirst() {
+        curArray = readList(tableMain);
         curArray.addFirst(textFieldInputValue.getText());
+        writeList(tableMain, curArray);
+        resizeSpinner();
     }
 
     private void demonstrateAddLast() {
+        curArray = readList(tableMain);
         curArray.addLast(textFieldInputValue.getText());
+        writeList(tableMain, curArray);
+        resizeSpinner();
     }
 
     private void demonstrateClear() {
+        curArray = readList(tableMain);
         curArray.clear();
+        writeList(tableMain, curArray);
+        resizeSpinner();
     }
 
     private void demonstrateContains() {
-        curArray.contains(textFieldInputValue.getText());
+        curArray = readList(tableMain);
+        boolean res = curArray.contains(textFieldInputValue.getText());
+        textFieldOutputValue.setText(Boolean.toString(res));
     }
 
     private void demonstrateContainsAll() {
-        curArray.containsAll(ListParser.parse(textFieldInputValue.getText()));
+        curArray = readList(tableMain);
+        DynamicArray<String> arr = readList(tableAdditional);
+        boolean res = curArray.containsAll(arr);
+        textFieldOutputValue.setText(Boolean.toString(res));
     }
 
     private void demonstrateEquals() {
-        curArray.equals(ListParser.parse(textFieldInputValue.getText()));
+        curArray = readList(tableMain);
+        DynamicArray<String> arr = readList(tableAdditional);
+        boolean res = curArray.equals(arr);
+        textFieldOutputValue.setText(Boolean.toString(res));
     }
 
     private void demonstrateGet() {
-        textFieldOutputValue.setText(curArray.get((int) spinnerIndex.getValue()));
+        curArray = readList(tableMain);
+        String res = curArray.get((int) spinnerIndex.getValue());
+        textFieldOutputValue.setText(res);
     }
 
     private void demonstrateGetFirst() {
-        textFieldOutputValue.setText(curArray.getFirst());
+        curArray = readList(tableMain);
+        String res = curArray.getFirst();
+        textFieldOutputValue.setText(res);
     }
 
     private void demonstrateGetLast() {
-        textFieldOutputValue.setText(curArray.getLast());
+        curArray = readList(tableMain);
+        String res = curArray.getLast();
+        textFieldOutputValue.setText(res);
     }
 
     private void demonstrateIndexOf() {
-        textFieldOutputValue.setText(Integer.toString(curArray.indexOf(textFieldInputValue.getText())));
+        curArray = readList(tableMain);
+        int res = curArray.indexOf(textFieldInputValue.getText());
+        textFieldOutputValue.setText(Integer.toString(res));
     }
 
     private void demonstrateIsEmpty() {
-        textFieldOutputValue.setText(Integer.toString(curArray.indexOf(textFieldInputValue.getText())));
+        curArray = readList(tableMain);
+        boolean res = curArray.isEmpty();
+        textFieldOutputValue.setText(Boolean.toString(res));
     }
 
     private void demonstrateLastIndexOf() {
-        textFieldOutputValue.setText(Integer.toString(curArray.lastIndexOf(textFieldInputValue.getText())));
+        curArray = readList(tableMain);
+        int res = curArray.lastIndexOf(textFieldInputValue.getText());
+        textFieldOutputValue.setText(Integer.toString(res));
     }
 
     private void demonstrateRemoveByIndex() {
-        curArray.remove((int) spinnerIndex.getValue());
+        curArray = readList(tableMain);
+        String res = curArray.remove((int) spinnerIndex.getValue());
+        textFieldOutputValue.setText(res);
+        writeList(tableMain, curArray);
+        resizeSpinner();
     }
 
     private void demonstrateRemoveByValue() {
+        curArray = readList(tableMain);
         curArray.remove(textFieldInputValue.getText());
+        writeList(tableMain, curArray);
+        resizeSpinner();
     }
 
     private void demonstrateRemoveFirst() {
+        curArray = readList(tableMain);
         curArray.removeFirst();
+        writeList(tableMain, curArray);
     }
 
     private void demonstrateRemoveLast() {
+        curArray = readList(tableMain);
         curArray.removeLast();
+        writeList(tableMain, curArray);
+        resizeSpinner();
     }
 
     private void demonstrateReversed() {
-        textFieldOutputValue.setText(curArray.reversed().toString());
+        curArray = readList(tableMain);
+        var res = curArray.reversed();
+        writeList(tableAdditional, res);
     }
 
     private void demonstrateSet() {
+        curArray = readList(tableMain);
         curArray.set((int) spinnerIndex.getValue(), textFieldInputValue.getText());
+        writeList(tableMain, curArray);
     }
 
     private void demonstrateSize() {
-        textFieldOutputValue.setText(Integer.toString(curArray.size()));
+        curArray = readList(tableMain);
+        int res = curArray.size();
+        textFieldOutputValue.setText(Integer.toString(res));
     }
 
     private void demonstrateToArray() {
-        textFieldOutputValue.setText(Arrays.toString(curArray.toArray()));
+        curArray = readList(tableMain);
+        var res = curArray.toArray();
+        textFieldOutputValue.setText(Arrays.toString(res));
     }
 }
