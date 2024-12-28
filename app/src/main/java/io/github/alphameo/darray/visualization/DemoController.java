@@ -101,6 +101,9 @@ public class DemoController {
         paneMain.setContent(tableMain);
         paneAdditional.setContent(tableAdditional);
 
+        spinnerIndex
+                .setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 0));
+
         buttonAddItemMain.setOnAction(event -> {
             addItem(tableMain, "");
             resizeSpinner();
@@ -175,7 +178,7 @@ public class DemoController {
 
     private void resizeSpinner() {
         spinnerIndex
-                .setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(0, tableMain.getColumnCount() - 1));
+                .setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(0, tableMain.getColumnCount()));
     }
 
     private void demonstrateAdd() {
